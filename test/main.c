@@ -6,7 +6,7 @@ main()
 {
         struct plt_ctx *ctx = 0;
 
-        ctx = plt_create()
+        ctx = plt_create();
         assert(ctx);
 
         uint64_t evts = 0;

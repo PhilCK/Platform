@@ -58,9 +58,8 @@ plt_win_fullscreen(
 
 #ifdef _WIN32
 #ifndef _WINDEF_
-typedef void *PVOID;
-typedef PVOID HANDLE;
-typedef HANDLE HWND;
+struct HWND__; // Forward or never
+typedef struct HWND__* HWND;
 #endif
 
 HWND
