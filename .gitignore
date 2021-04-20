@@ -1,0 +1,6 @@
+# Build Dir
+/test/bin
+
+# OS Files
+*.DS_Store
+
