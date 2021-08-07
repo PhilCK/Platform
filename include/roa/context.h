@@ -2,6 +2,7 @@
 #define INCLUDED_0C45A081_7ECC_47A2_B928_4E34F404171C
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +56,22 @@ roa_ctx_screen_size(
         struct roa_ctx *ctx,
         int *out_x,
         int *out_y);
+
+
+/* ----------------------------------------------- */
+/*
+ */
+
+#ifdef __linux
+uintptr_t
+roa_platform_details_xcb_window(
+        struct roa_ctx *ctx);
+
+uintptr_t
+roa_platform_details_xcb_connection(
+        struct roa_ctx *ctx);
+
+#endif
 
 #ifdef __cplusplus
 } /* extern */

@@ -70,10 +70,9 @@ roa_ctx_create(
         *ctx = (struct roa_ctx) {
                 .con = connection,
                 .win = window,
+                .width = desc->width,
+                .height = desc->height,
         };
-
-        ctx->con = connection;
-        ctx->win = window;
 
         return ctx;
 }
@@ -96,9 +95,21 @@ roa_ctx_poll(
 {
         xcb_generic_event_t *evt = 0;
 
-        while((evt = xcb_wait_for_event(ctx->con))  !=  NULL) {
+        while((evt = xcb_poll_for_event(ctx->con))  !=  NULL) {
                 switch(evt->response_type & ~0x80) {
                 case XCB_EXPOSE: {
+                        xcb_client_message_event_t client_message;
+
+                        client_message.response_type = XCB_CLIENT_MESSAGE;
+                        client_message.format = 32;
+                        client_message.window = ctx->win;
+                        client_message.type = XCB_ATOM_NOTICE;
+
+                        xcb_send_event(ctx->con, 0, ctx->win,
+                                0, (char *) &client_message);
+                        
+                        xcb_flush(ctx->con);
+                        
                         break;
                 }
                 case XCB_RESIZE_REQUEST: {
@@ -107,13 +118,15 @@ roa_ctx_poll(
 
                         ctx->width = (int)resize->width;
                         ctx->height = (int)resize->height;
-
-                        __builtin_printf("%dx%d\n", ctx->width, ctx->height);
                 }
                 default:
                         break;
                 }
+
+                free(evt);
         }
+
+        xcb_map_window(ctx->con, ctx->win);
 
         return 0;
 }
@@ -131,3 +144,20 @@ roa_ctx_screen_size(
         *out_x = ctx->width;
         *out_y = ctx->height;
 }
+
+uintptr_t
+roa_platform_details_xcb_window(
+        struct roa_ctx *ctx)
+{
+        assert(ctx);
+        return (uintptr_t)ctx->win;
+}
+
+uintptr_t
+roa_platform_details_xcb_connection(
+        struct roa_ctx *ctx)
+{
+        assert(ctx);
+        return (uintptr_t)ctx->con;
+}
+
