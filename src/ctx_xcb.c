@@ -42,7 +42,19 @@ roa_ctx_create(
         /* Create the window */
         xcb_window_t window = xcb_generate_id(connection);
 
-        uint32_t val = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_RESIZE_REDIRECT;
+        //uint32_t val = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_RESIZE_REDIRECT;
+        
+        uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+        uint32_t value_list[2] = {0};
+        value_list[0] = screen->black_pixel;
+        value_list[1] =
+                    XCB_EVENT_MASK_KEY_RELEASE |
+                    XCB_EVENT_MASK_KEY_PRESS |
+                    XCB_EVENT_MASK_EXPOSURE |
+                    XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+                    XCB_EVENT_MASK_POINTER_MOTION |
+                    XCB_EVENT_MASK_BUTTON_PRESS |
+                    XCB_EVENT_MASK_BUTTON_RELEASE;
 
         xcb_create_window(
                 connection,                    /* Connection          */
@@ -54,8 +66,8 @@ roa_ctx_create(
                 1,                            /* border_width        */
                 XCB_WINDOW_CLASS_INPUT_OUTPUT, /* class               */
                 screen->root_visual,           /* visual              */
-                XCB_CW_EVENT_MASK,
-                &val); 
+                value_mask, //XCB_CW_EVENT_MASK,
+                value_list); //&val); 
 
         /* Map the window on the screen */
         xcb_map_window (connection, window);
@@ -109,15 +121,17 @@ roa_ctx_poll(
                                 0, (char *) &client_message);
                         
                         xcb_flush(ctx->con);
+
+                        __builtin_printf("xpose\n");
                         
                         break;
                 }
-                case XCB_RESIZE_REQUEST: {
-                        xcb_resize_request_event_t *resize = NULL;
-                        resize = (xcb_resize_request_event_t*)evt;
+                case XCB_CONFIGURE_NOTIFY: {
+                        xcb_configure_notify_event_t *cfg = NULL;
+                        cfg = (xcb_configure_notify_event_t*)evt;
 
-                        ctx->width = (int)resize->width;
-                        ctx->height = (int)resize->height;
+                        ctx->width = (int)cfg->width;
+                        ctx->height = (int)cfg->height;
                 }
                 default:
                         break;
