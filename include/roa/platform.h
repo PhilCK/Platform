@@ -9,10 +9,15 @@ extern "C" {
 #endif
 
 /* -------------------------------------------------------------------------- */
-/* Types
+/* Types and Identifiers
  */
 
 struct roa_ctx;
+
+enum {
+        ROA_PLATFORM_WINDOW_SIZE = 1 << 0,
+        ROA_PLATFORM_WINDOW_CLOSED = 1 << 1,
+};
 
 /* -------------------------------------------------------------------------- */
 /* Lifetime
@@ -31,17 +36,7 @@ roa_ctx_create(
 void
 roa_ctx_destroy(
         const struct roa_ctx *ctx);
-
-/* -------------------------------------------------------------------------- */
-/* Platform Interface 
- */
-
-enum {
-        ROA_EVT_WINDOW_SIZE = 1 << 0,
-};
-
-struct roa_ctx_poll_desc
-{
+struct roa_ctx_poll_desc {
         int width;
         int height;
 };
@@ -51,15 +46,19 @@ roa_ctx_poll(
         struct roa_ctx *ctx,
         const struct roa_ctx_poll_desc *desc);
 
+/* -------------------------------------------------------------------------- */
+/* Platform Properties
+ */
+
 void
 roa_ctx_screen_size(
         struct roa_ctx *ctx,
         int *out_x,
         int *out_y);
 
-
-/* ----------------------------------------------- */
-/*
+/* -------------------------------------------------------------------------- */
+/* Native Types
+ * Connections to the native layer.
  */
 
 #ifdef __linux
