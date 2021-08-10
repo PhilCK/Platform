@@ -9,19 +9,29 @@ main()
 {
         printf("ROA Platform Test\n");
 
-        struct roa_ctx *ctx = roa_ctx_create(&(struct roa_ctx_desc) {
-                .width = 1280,
-                .height = 800,
-                .title = "ROA Test",
-        });
+        struct roa_platform_ctx *ctx = roa_platform_create(
+                &(struct roa_platform_desc) {
+                        .width = 1280,
+                        .height = 800,
+                        .title = "ROA Test",
+                }
+        );
 
-        uint64_t evt = 0;
+        for(;;) {
+                struct roa_platform_poll_desc new_frame = {
+                        .width = 1280,
+                        .height = 800,
+                };
 
-        while(!(evt & ROA_PLATFORM_WINDOW_CLOSED)) {
-                evt = roa_ctx_poll(ctx, NULL);
+                uint64_t evts = roa_platform_poll(ctx, &new_frame);
+
+                /* Quit Event */
+                if(evts & ROA_PLATFORM_WINDOW_CLOSED) {
+                        break;
+                }
         };
 
-        roa_ctx_destroy(ctx);
+        roa_platform_destroy(ctx);
 
         return 0;
 }

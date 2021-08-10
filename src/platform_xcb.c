@@ -9,7 +9,7 @@
 /* Types
  */
 
-struct roa_ctx {
+struct roa_platform_ctx {
         xcb_connection_t *con;
         xcb_window_t win;
 
@@ -26,13 +26,13 @@ struct roa_ctx {
 /* Public Interface
  */
 
-struct roa_ctx*
-roa_ctx_create(
-        const struct roa_ctx_desc *desc)
+struct roa_platform_ctx*
+roa_platform_create(
+        const struct roa_platform_desc *desc)
 {
         assert(desc && "Need a description");
 
-        struct roa_ctx *ctx;
+        struct roa_platform_ctx *ctx;
         ctx = malloc(sizeof(*ctx));
         memset(ctx, 0, sizeof(*ctx));
 
@@ -160,31 +160,31 @@ roa_ctx_create(
         /* Setup context and return 
          */
 
-        *ctx = (struct roa_ctx) {
-                .con = connection,
-                .win = window,
+        *ctx = (struct roa_platform_ctx) {
+                .con              = connection,
+                .win              = window,
                 .protocols_cookie = protocols_cookie,
-                .protocols_reply = protocols_reply,
-                .delete_cookie = delete_cookie,
-                .delete_reply = delete_reply,
-                .width = desc->width,
-                .height = desc->height,
+                .protocols_reply  = protocols_reply,
+                .delete_cookie    = delete_cookie,
+                .delete_reply     = delete_reply,
+                .width            = desc->width,
+                .height           = desc->height,
         };
 
         return ctx;
 }
 
 void
-roa_ctx_destroy(
-        const struct roa_ctx *ctx)
+roa_platform_destroy(
+        const struct roa_platform_ctx *ctx)
 {
         xcb_disconnect(ctx->con);
 }
 
 uint64_t
-roa_ctx_poll(
-        struct roa_ctx *ctx,
-        const struct roa_ctx_poll_desc *desc)
+roa_platform_poll(
+        struct roa_platform_ctx *ctx,
+        const struct roa_platform_poll_desc *desc)
 {
         uint64_t events = 0;
         events |= (!ctx->win * ROA_PLATFORM_WINDOW_CLOSED);
@@ -251,8 +251,8 @@ roa_ctx_poll(
  */
 
 void
-roa_ctx_screen_size(
-        struct roa_ctx *ctx,
+roa_platform_screen_size(
+        struct roa_platform_ctx *ctx,
         int *out_x,
         int *out_y)
 {
@@ -271,7 +271,7 @@ roa_ctx_screen_size(
 
 uintptr_t
 roa_platform_details_xcb_window(
-        struct roa_ctx *ctx)
+        struct roa_platform_ctx *ctx)
 {
         assert(ctx);
         return (uintptr_t)ctx->win;
@@ -279,7 +279,7 @@ roa_platform_details_xcb_window(
 
 uintptr_t
 roa_platform_details_xcb_connection(
-        struct roa_ctx *ctx)
+        struct roa_platform_ctx *ctx)
 {
         assert(ctx);
         return (uintptr_t)ctx->con;
