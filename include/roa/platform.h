@@ -57,6 +57,14 @@ roa_platform_screen_size(
         int *out_x,
         int *out_y);
 
+uint64_t
+roa_platform_ms_delta(
+        struct roa_platform_ctx *ctx);
+
+uint64_t
+roa_platform_ms_running(
+        struct roa_platform_ctx *ctx);
+
 /* -------------------------------------------------------------------------- */
 /* Native Types
  * Connections to the native layer.

@@ -20,7 +20,27 @@ struct roa_platform_ctx {
 
         int width;
         int height;
+
+        uint64_t start_ms;
+        uint64_t last_ms;
+        uint64_t delta_ms;
 };
+
+/* -------------------------------------------------------------------------- */
+/* Internal Helpers
+ */
+
+#include <sys/time.h>
+
+static uint64_t
+roa_clock_now_ms()
+{
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        
+        uint64_t milli = (tv.tv_sec * 1000LL) + (tv.tv_usec / 1000LL);
+        return milli;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Public Interface
@@ -169,6 +189,9 @@ roa_platform_create(
                 .delete_reply     = delete_reply,
                 .width            = desc->width,
                 .height           = desc->height,
+                .start_ms         = roa_clock_now_ms(),
+                .last_ms          = roa_clock_now_ms(),
+                .delta_ms         = 0,
         };
 
         return ctx;
@@ -188,6 +211,17 @@ roa_platform_poll(
 {
         uint64_t events = 0;
         events |= (!ctx->win * ROA_PLATFORM_WINDOW_CLOSED);
+
+        /* Time
+         */
+
+        uint64_t now = roa_clock_now_ms();
+        uint64_t dt = now - ctx->last_ms;
+        ctx->delta_ms = dt;
+        ctx->last_ms = now;
+
+        /* Poll the XCB messages until dry
+         */
 
         xcb_generic_event_t *evt = 0;
 
@@ -262,6 +296,24 @@ roa_platform_screen_size(
 
         *out_x = ctx->width;
         *out_y = ctx->height;
+}
+
+uint64_t
+roa_platform_ms_delta(
+        struct roa_platform_ctx *ctx)
+{
+        assert(ctx);
+
+        return ctx->delta_ms;
+}
+
+uint64_t
+roa_platform_ms_running(
+        struct roa_platform_ctx *ctx)
+{
+        assert(ctx);
+
+        return ctx->last_ms - ctx->start_ms;
 }
 
 /* -------------------------------------------------------------------------- */

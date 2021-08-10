@@ -1,8 +1,11 @@
 #include <assert.h>
 #include <roa/platform.h>
 #include <stddef.h>
-#include <xcb/xcb.h>
 #include <stdio.h>
+
+#ifdef __linux__
+#include <unistd.h>
+#endif
 
 int
 main()
@@ -29,6 +32,18 @@ main()
                 if(evts & ROA_PLATFORM_WINDOW_CLOSED) {
                         break;
                 }
+                
+                printf("Time %lu, Delta %lu\n",
+                        roa_platform_ms_running(ctx),
+                        roa_platform_ms_delta(ctx));
+
+                /* Slow things down so its not 2000 fps
+                 */
+
+                #ifdef __linux__
+                /* 60 FPS == 16000 microseconds. */
+                usleep(16000);
+                #endif
         };
 
         roa_platform_destroy(ctx);
