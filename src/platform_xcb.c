@@ -83,8 +83,11 @@ roa_platform_create(
         int half_width = screen->width_in_pixels / 2;
         int half_height = screen->height_in_pixels / 2;
 
-        int x = half_width - (desc->width / 2);
-        int y = half_height - (desc->height / 2);
+        int width = desc->width > 0 ? desc->width : (screen->width_in_pixels / 3) * 2;
+        int height = desc->height > 0 ? desc->height : (screen->height_in_pixels / 3) * 2;
+        int x = half_width - (width / 2);
+        int y = half_height - (height / 2);
+
 
         __builtin_printf("%d x %d\n", x, y);
 
@@ -94,7 +97,7 @@ roa_platform_create(
                 window,                        /* window Id           */
                 screen->root,                  /* parent window       */
                 x, y,                          /* x, y                */
-                desc->width, desc->height,     /* width, height       */
+                width, height,                 /* width, height       */
                 1,                            /* border_width        */
                 XCB_WINDOW_CLASS_INPUT_OUTPUT, /* class               */
                 screen->root_visual,           /* visual              */
@@ -167,8 +170,8 @@ roa_platform_create(
         const uint32_t values[] = {
                 x,    /* x */
                 y,    /* y */
-                desc->width, /* width */
-                desc->height   /* height */
+                width, /* width */
+                height   /* height */
         };
 
         xcb_configure_window(connection, window, mask, values);

@@ -14,8 +14,8 @@ main()
 
         struct roa_platform_ctx *ctx = roa_platform_create(
                 &(struct roa_platform_desc) {
-                        .width = 1280,
-                        .height = 800,
+                        .width = 0,
+                        .height = 0,
                         .title = "ROA Test",
                 }
         );
@@ -26,7 +26,7 @@ main()
                         .height = 800,
                 };
 
-                uint64_t evts = roa_platform_poll(ctx, &new_frame);
+                uint64_t evts = roa_platform_poll(ctx, NULL);
 
                 /* Quit Event */
                 if(evts & ROA_PLATFORM_WINDOW_CLOSED) {
