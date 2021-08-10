@@ -36,11 +36,14 @@ main()
                 struct roa_platform_properties prop = {0};
                 roa_platform_properties(ctx, &prop);
                 
-                printf("Time: %lu(ms), Delta: %lu(ms) Res: %dx%d\n",
+                printf("Time: %lu(ms), Delta: %lu(ms) Res: %dx%d Mouse Pos: %dx%d Mouse Button: %d\n",
                         prop.app_running_ms,
                         prop.delta_ms,
                         prop.width,
-                        prop.height);
+                        prop.height,
+                        prop.ms_x,
+                        prop.ms_y,
+                        prop.ms_left);
 
                 /* Slow things down so its not 2000 fps
                  */

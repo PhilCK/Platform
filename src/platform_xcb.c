@@ -25,6 +25,11 @@ struct roa_platform_ctx {
         uint64_t app_ms;
         uint64_t last_ms;
         uint64_t delta_ms;
+
+        int ms_x;
+        int ms_y;
+        int ms_left;
+        int ms_right;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -73,23 +78,24 @@ roa_platform_create(
         value_list[0] = screen->black_pixel;
         value_list[1] =
                     XCB_EVENT_MASK_KEY_RELEASE |
+                    XCB_EVENT_MASK_BUTTON_RELEASE |
                     XCB_EVENT_MASK_KEY_PRESS |
+                    XCB_EVENT_MASK_BUTTON_PRESS |
                     XCB_EVENT_MASK_EXPOSURE |
                     XCB_EVENT_MASK_STRUCTURE_NOTIFY |
                     XCB_EVENT_MASK_POINTER_MOTION |
                     XCB_EVENT_MASK_BUTTON_PRESS |
-                    XCB_EVENT_MASK_BUTTON_RELEASE;
+                    XCB_EVENT_MASK_BUTTON_RELEASE |
+                    XCB_EVENT_MASK_POINTER_MOTION;
 
         int half_width = screen->width_in_pixels / 2;
         int half_height = screen->height_in_pixels / 2;
 
-        int width = desc->width > 0 ? desc->width : (screen->width_in_pixels / 3) * 2;
-        int height = desc->height > 0 ? desc->height : (screen->height_in_pixels / 3) * 2;
+        int width = desc->width > 0 ? desc->width : (screen->width_in_pixels / 4) * 3;
+        int height = desc->height > 0 ? desc->height : (screen->height_in_pixels / 4) * 3;
+
         int x = half_width - (width / 2);
         int y = half_height - (height / 2);
-
-
-        __builtin_printf("%d x %d\n", x, y);
 
         xcb_create_window(
                 connection,                    /* Connection          */
@@ -276,6 +282,27 @@ roa_platform_poll(
                         }
                         break;
                 }
+                case XCB_MOTION_NOTIFY: {
+                        xcb_motion_notify_event_t *ms = NULL;
+                        ms = (xcb_motion_notify_event_t*)evt;
+
+                        ctx->ms_x = ms->event_x;
+                        ctx->ms_y = ms->event_y;
+
+                        break;
+                }
+                case XCB_BUTTON_RELEASE: {
+                        xcb_button_release_event_t *but = NULL;
+                        but = (xcb_button_release_event_t*)evt;
+                        ctx->ms_left = 0;
+                        break;
+                }
+                case XCB_BUTTON_PRESS: {
+                        xcb_button_press_event_t *but = NULL;
+                        but = (xcb_button_press_event_t*)evt;
+                        ctx->ms_left = 1;
+                        break;
+                }
                 default:
                         break;
                 }
@@ -301,6 +328,9 @@ roa_platform_properties(
         *out_props = (struct roa_platform_properties) {
                 .width = ctx->width,
                 .height = ctx->height,
+                .ms_x = ctx->ms_x,
+                .ms_y = ctx->ms_y,
+                .ms_left = ctx->ms_left,
                 .delta_ms = ctx->delta_ms,
                 .app_running_ms = ctx->app_ms,
         };

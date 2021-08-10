@@ -19,7 +19,7 @@ enum {
         ROA_PLATFORM_WINDOW_CLOSED = 1 << 1,
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 /* Context Lifetime 
  */
 
@@ -54,6 +54,9 @@ roa_platform_poll(
 struct roa_platform_properties {
         int width;
         int height;
+        int ms_x;
+        int ms_y;
+        int ms_left;
         uint64_t delta_ms;
         uint64_t app_running_ms;
 };
