@@ -22,6 +22,7 @@ struct roa_platform_ctx {
         int height;
 
         uint64_t start_ms;
+        uint64_t app_ms;
         uint64_t last_ms;
         uint64_t delta_ms;
 };
@@ -97,8 +98,8 @@ roa_platform_create(
                 1,                            /* border_width        */
                 XCB_WINDOW_CLASS_INPUT_OUTPUT, /* class               */
                 screen->root_visual,           /* visual              */
-                value_mask, //XCB_CW_EVENT_MASK,
-                value_list); //&val); 
+                value_mask, 
+                value_list);
 
         const char *title = desc->title ? desc->title : "Republic Of Almost";
 
@@ -190,6 +191,7 @@ roa_platform_create(
                 .width            = desc->width,
                 .height           = desc->height,
                 .start_ms         = roa_clock_now_ms(),
+                .app_ms           = 0,
                 .last_ms          = roa_clock_now_ms(),
                 .delta_ms         = 0,
         };
@@ -219,6 +221,7 @@ roa_platform_poll(
         uint64_t dt = now - ctx->last_ms;
         ctx->delta_ms = dt;
         ctx->last_ms = now;
+        ctx->app_ms = now - ctx->start_ms;
 
         /* Poll the XCB messages until dry
          */
@@ -285,55 +288,32 @@ roa_platform_poll(
  */
 
 void
-roa_platform_screen_size(
+roa_platform_properties(
         struct roa_platform_ctx *ctx,
-        int *out_x,
-        int *out_y)
+        struct roa_platform_properties *out_props)
 {
         assert(ctx);
-        assert(out_x);
-        assert(out_y);
+        assert(out_props);
 
-        *out_x = ctx->width;
-        *out_y = ctx->height;
+        *out_props = (struct roa_platform_properties) {
+                .width = ctx->width,
+                .height = ctx->height,
+                .delta_ms = ctx->delta_ms,
+                .app_running_ms = ctx->app_ms,
+        };
 }
 
-uint64_t
-roa_platform_ms_delta(
-        struct roa_platform_ctx *ctx)
+void
+roa_platform_native_properties(
+        struct roa_platform_ctx *ctx,
+        struct roa_platform_native_properties *out_props)
 {
         assert(ctx);
+        assert(out_props);
 
-        return ctx->delta_ms;
-}
-
-uint64_t
-roa_platform_ms_running(
-        struct roa_platform_ctx *ctx)
-{
-        assert(ctx);
-
-        return ctx->last_ms - ctx->start_ms;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Native Types
- * Connections to the native layer.
- */
-
-uintptr_t
-roa_platform_details_xcb_window(
-        struct roa_platform_ctx *ctx)
-{
-        assert(ctx);
-        return (uintptr_t)ctx->win;
-}
-
-uintptr_t
-roa_platform_details_xcb_connection(
-        struct roa_platform_ctx *ctx)
-{
-        assert(ctx);
-        return (uintptr_t)ctx->con;
+        *out_props = (struct roa_platform_native_properties) {
+                .xcb_window = ctx->win,
+                .xcb_connection = (uintptr_t)ctx->con,
+        };
 }
 

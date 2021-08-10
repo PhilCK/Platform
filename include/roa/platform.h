@@ -51,35 +51,31 @@ roa_platform_poll(
 /* Platform Properties
  */
 
+struct roa_platform_properties {
+        int width;
+        int height;
+        uint64_t delta_ms;
+        uint64_t app_running_ms;
+};
+
 void
-roa_platform_screen_size(
+roa_platform_properties(
         struct roa_platform_ctx *ctx,
-        int *out_x,
-        int *out_y);
+        struct roa_platform_properties *out_props);
 
-uint64_t
-roa_platform_ms_delta(
-        struct roa_platform_ctx *ctx);
+struct roa_platform_native_properties {
+        #ifdef __linux__
+        uintptr_t xcb_window;
+        uintptr_t xcb_connection;
+        #else
+        int unused;
+        #endif
+};
 
-uint64_t
-roa_platform_ms_running(
-        struct roa_platform_ctx *ctx);
-
-/* -------------------------------------------------------------------------- */
-/* Native Types
- * Connections to the native layer.
- */
-
-#ifdef __linux
-uintptr_t
-roa_platform_details_xcb_window(
-        struct roa_platform_ctx *ctx);
-
-uintptr_t
-roa_platform_details_xcb_connection(
-        struct roa_platform_ctx *ctx);
-
-#endif
+void
+roa_platform_native_properties(
+        struct roa_platform_ctx *ctx,
+        struct roa_platform_native_properties *out_props);
 
 #ifdef __cplusplus
 } /* extern */

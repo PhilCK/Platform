@@ -32,17 +32,22 @@ main()
                 if(evts & ROA_PLATFORM_WINDOW_CLOSED) {
                         break;
                 }
+
+                struct roa_platform_properties prop = {0};
+                roa_platform_properties(ctx, &prop);
                 
-                printf("Time %lu, Delta %lu\n",
-                        roa_platform_ms_running(ctx),
-                        roa_platform_ms_delta(ctx));
+                printf("Time: %lu(ms), Delta: %lu(ms) Res: %dx%d\n",
+                        prop.app_running_ms,
+                        prop.delta_ms,
+                        prop.width,
+                        prop.height);
 
                 /* Slow things down so its not 2000 fps
                  */
 
                 #ifdef __linux__
-                /* 60 FPS == 16000 microseconds. */
-                usleep(16000);
+                /* 30 FPS == 32000 microseconds. */
+                usleep(32000);
                 #endif
         };
 
@@ -50,3 +55,4 @@ main()
 
         return 0;
 }
+
